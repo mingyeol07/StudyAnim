@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.UIElements;
 
@@ -14,10 +15,15 @@ public class Player : MonoBehaviour
     [SerializeField] private Transform _feetPos;
     private float _checkRadius = 0.1f;
     [SerializeField] private LayerMask _whatIsGround;
+    [SerializeField] private float _jumpForce;
 
     [Header("Attack")]
-    [SerializeField] private float _attackCool;
-    [SerializeField] private float _attackComboCool;
+    private bool _isAttack;
+    private bool _comboAttack;
+
+    [Header("Roll")]
+    private bool _isRolling;
+    [SerializeField] float _rollSpeed;
 
     private Rigidbody2D _rb;
     private Animator _anim;
@@ -30,58 +36,86 @@ public class Player : MonoBehaviour
 
     private void Update()
     {
+        ValueSet();
+
+        if (Input.GetKeyDown(KeyCode.X) && !_isRolling)
+        {
+            Attack();
+        }
+        else if (_isRolling && !_isAttack)
+        {
+            _rb.velocity = transform.right * _rollSpeed;
+        }
+
+        if (!_isAttack && !_isRolling)
+        {
+            Move();
+            if(_isGrounded )
+            {
+                if (Input.GetKeyDown(KeyCode.LeftShift)) Roll();
+                if (Input.GetKeyDown(KeyCode.Space)) Jump();
+            }
+        }
+    }
+    
+    private void ValueSet() // 바라보는 방향, 땅에 닿았는지
+    {
         _moveInput = Input.GetAxisRaw("Horizontal");
-
-        _rb.velocity = new Vector2(_moveSpeed * _moveInput, _rb.velocity.y);
-
-        if (_moveInput > 0) { transform.eulerAngles = Vector3.zero; }
-        else if (_moveInput < 0) transform.eulerAngles = new Vector3(0, 180, 0);
-
+        _anim.SetBool("IsRun", Mathf.Approximately(_moveInput, 0) ? false : true);
         _isGrounded = Physics2D.OverlapCircle(_feetPos.position, _checkRadius, _whatIsGround);
 
-        if(_isGrounded && Input.GetKeyDown(KeyCode.Space)) {
-            // jump
-        }
-
-        if(Input.GetKeyDown(KeyCode.X))
-        {
-            _anim.SetTrigger("IsAttack");
-        }
-
-        AnimCon();
-        Attack();
-
-        if(_attackCool > 0) {
-            _attackCool -= Time.deltaTime;
-        }
-
-        if(_attackComboCool > 0)
-        {
-            _attackComboCool -= Time.deltaTime;
-        }
-    }
-
-    private void AnimCon()
-    {
-        _anim.SetBool("IsRun", Mathf.Approximately(_moveInput, 0) ? false : true);
-    }
-
-    private void Attack()
-    {
-        if(Input.GetKeyDown(KeyCode.X))
-        {
-            if(_attackCool <=  0)
-            {
-                _anim.SetFloat("AttackTree", 0f);
-                _anim.SetTrigger("AttackTrigger");
-                _attackCool = 0.3f;
-            }
-            
-        }
+        if(_isAttack) _rb.velocity = Vector3.zero;
     }
 
     private void Move()
     {
+        _rb.velocity = new Vector2(_moveSpeed * _moveInput, _rb.velocity.y);
 
+        if (_moveInput > 0) { transform.eulerAngles = Vector3.zero; }
+        else if (_moveInput < 0) transform.eulerAngles = new Vector3(0, 180, 0);
+    }
+
+    private void Jump()
+    {
+        _rb.AddForce(Vector2.up * _jumpForce, ForceMode2D.Impulse);
+    }
+
+    private void Roll()
+    {
+        _isRolling = true;
+        _anim.SetBool("IsRolling", true); 
+    }
+
+    private void RollingExit() // AnimEvent
+    {
+        _isRolling = false;
+        _anim.SetBool("IsRolling", false);
+        _rb.velocity = Vector2.zero;
+    }
+
+    private void Attack()
+    {
+        if (_isAttack == false)
+        {
+            _isAttack = true;
+            _anim.SetTrigger("AttackTrigger");
+        }
+        else if (_isAttack == true && _comboAttack == true)
+        {
+            _anim.SetBool("AttackCombo", true);
+        }
+    }
+
+    private void OnComboAttack()
+    {
+        _comboAttack = true;
+    }
+
+    private void AttackExit() // AnimEvent
+    {
+        _isAttack = false;
+        _comboAttack = false;
+        _anim.SetBool("AttackCombo", false);
+        _anim.SetBool("IsRun", false);
     }
 }
