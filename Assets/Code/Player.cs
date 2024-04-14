@@ -18,12 +18,18 @@ public class Player : MonoBehaviour
     [SerializeField] private float jumpForce;
 
     [Header("Attack")]
-    private bool isAttack;
+    [SerializeField] private bool isAttack;
+    [SerializeField] private GameObject atkRange;
     private bool comboAttack;
 
     [Header("Roll")]
     private bool isRolling;
     [SerializeField] float rollSpeed;
+
+    [Header("Crouch")]
+    private bool isCrouching;
+    [SerializeField] private float crouchSpeed;
+    [SerializeField] private GameObject crouch_atkRange;
 
     private Rigidbody2D rigid;
     private Animator anim;
@@ -42,7 +48,7 @@ public class Player : MonoBehaviour
         {
             Attack();
         }
-        else if (isRolling && !isAttack)
+        else if (isRolling && !isAttack) // rolling
         {
             rigid.velocity = transform.right * rollSpeed;
         }
@@ -50,17 +56,27 @@ public class Player : MonoBehaviour
         if (!isAttack && !isRolling)
         {
             Move();
-            if(isGrounded)
+
+            if (isGrounded)
             {
                 if (Input.GetKeyDown(KeyCode.LeftShift)) Roll();
                 if (Input.GetKeyDown(KeyCode.Space) && !anim.GetBool("IsJumping")) Jump();
+                if (Input.GetAxisRaw("Vertical") < 0)
+                {
+                    isCrouching = true;
+                    anim.SetBool("IsCrouching", isCrouching);
+                }
+                else
+                {
+                    isCrouching = false;
+                    anim.SetBool("IsCrouching", isCrouching);
+                }
             }
 
             if (anim.GetBool("IsJumping")){
                 anim.SetFloat("Velocity", rigid.velocity.y);
                 if (rigid.velocity.y < 0)
                 {
-                    
                     anim.SetBool("IsJumping", !isGrounded);
                 }
             }
@@ -70,6 +86,7 @@ public class Player : MonoBehaviour
     private void ValueSet() // 바라보는 방향, 땅에 닿았는지
     {
         moveInput = Input.GetAxisRaw("Horizontal");
+
         anim.SetBool("IsRunning", Mathf.Approximately(moveInput, 0) ? false : true);
         isGrounded = Physics2D.OverlapCircle(feetPos.position, checkRadius, whatIsGround);
 
@@ -98,6 +115,7 @@ public class Player : MonoBehaviour
 
     private void Attack()
     {
+
         if (isAttack == false)
         {
             isAttack = true;
@@ -122,7 +140,7 @@ public class Player : MonoBehaviour
         comboAttack = true;
     }
 
-    private void AttackExit() // AnimEvent
+    private void AttackExit() // AnimEvent idle이 시작될 때 호출
     {
         isAttack = false;
         comboAttack = false;
