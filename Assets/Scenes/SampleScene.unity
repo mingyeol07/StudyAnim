@@ -226,7 +226,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: da8d7a160ea01ce42a2c0187825b4f32, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  moveSpeed: 5
+  moveSpeed: 3
   feetPos: {fileID: 271961231}
   whatIsGround:
     serializedVersion: 2
@@ -234,7 +234,7 @@ MonoBehaviour:
   jumpForce: 5
   isAttack: 0
   atkRange: {fileID: 0}
-  rollSpeed: 5
+  rollSpeed: 6
   crouchSpeed: 3
   crouch_atkRange: {fileID: 0}
 --- !u!61 &14110925
