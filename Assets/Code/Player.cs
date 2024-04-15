@@ -7,6 +7,7 @@ using UnityEngine.UIElements;
 public class Player : MonoBehaviour
 {
     [Header("Move")]
+    [SerializeField] private Transform parent;
     [SerializeField] private float moveSpeed;
     private float moveInput;
 
@@ -31,27 +32,52 @@ public class Player : MonoBehaviour
     [SerializeField] private float crouchSpeed;
     [SerializeField] private GameObject crouch_atkRange;
 
+    [Header("Wall")]
+    [SerializeField] private LayerMask whatIsWall;
+    [SerializeField] private Transform wallCheckPos;
+    public  bool isWall;
+
     private Rigidbody2D rigid;
     private Animator anim;
+    private SpriteRenderer spriteRenderer;
 
     private void Start()
     {
         anim = GetComponent<Animator>();
-        rigid = GetComponent<Rigidbody2D>();
+        rigid = GetComponentInParent<Rigidbody2D>();
+        spriteRenderer = GetComponent<SpriteRenderer>();
     }
 
     private void Update()
     {
         ValueSet();
 
-        if (Input.GetKeyDown(KeyCode.X) && !isRolling && isGrounded)
+        if (isGrounded)
         {
-            Attack();
+            if (Input.GetKeyDown(KeyCode.X) && !isRolling)
+            {
+                Attack();
+            }
+            else if (isRolling && !isAttack) // rolling
+            {
+                rigid.velocity = transform.right * rollSpeed;
+            }
+            anim.SetBool("IsClimbing", false);
+            spriteRenderer.flipX = false;
         }
-        else if (isRolling && !isAttack) // rolling
+        else if (isWall && ((spriteRenderer.flipX && Input.GetKey(KeyCode.RightArrow))
+            || (!spriteRenderer.flipX && Input.GetKey(KeyCode.RightArrow))))
         {
-            rigid.velocity = transform.right * rollSpeed;
+            anim.SetBool("IsClimbing", true);
+            spriteRenderer.flipX = true;
+            rigid.velocity = Vector3.down * 0.5f;
         }
+        else
+        {
+            anim.SetBool("IsClimbing", false);
+            spriteRenderer.flipX = false;
+        }
+
 
         if (!isAttack && !isRolling)
         {
@@ -73,7 +99,7 @@ public class Player : MonoBehaviour
                 }
             }
 
-            if (anim.GetBool("IsJumping")){
+            if (anim.GetBool("IsJumping")){  // fall
                 anim.SetFloat("Velocity", rigid.velocity.y);
                 if (rigid.velocity.y < 0)
                 {
@@ -89,16 +115,17 @@ public class Player : MonoBehaviour
 
         anim.SetBool("IsRunning", Mathf.Approximately(moveInput, 0) ? false : true);
         isGrounded = Physics2D.OverlapCircle(feetPos.position, checkRadius, whatIsGround);
+        isWall = Physics2D.OverlapCircle(wallCheckPos.position, checkRadius, whatIsWall);
 
-        if(isAttack) rigid.velocity = Vector3.zero;
+        if (isAttack) rigid.velocity = Vector3.zero;
     }
 
     private void Move()
     {
-        rigid.velocity = new Vector2(moveSpeed * moveInput, rigid.velocity.y);
-
-        if (moveInput > 0) { transform.eulerAngles = Vector3.zero; }
-        else if (moveInput < 0) transform.eulerAngles = new Vector3(0, 180, 0);
+        rigid.velocity = new Vector2((isCrouching? crouchSpeed : moveSpeed) * moveInput, rigid.velocity.y);
+        
+        if (moveInput > 0) { parent.eulerAngles = Vector3.zero; }
+        else if (moveInput < 0) parent.eulerAngles = new Vector3(0, 180, 0);
     }
 
     private void Jump()
