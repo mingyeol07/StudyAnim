@@ -33,6 +33,8 @@ AnimationClip:
       value: {fileID: -151326150, guid: 01624e6f7a92ff941bf01e44ad44e9b9, type: 3}
     - time: 0.5
       value: {fileID: -1276816014, guid: 01624e6f7a92ff941bf01e44ad44e9b9, type: 3}
+    - time: 0.5833333
+      value: {fileID: -1668544935, guid: 5fe6c806e2f4ce147bb9149d52639808, type: 3}
     attribute: m_Sprite
     path: 
     classID: 212
@@ -59,12 +61,13 @@ AnimationClip:
     - {fileID: -578770499, guid: 01624e6f7a92ff941bf01e44ad44e9b9, type: 3}
     - {fileID: -151326150, guid: 01624e6f7a92ff941bf01e44ad44e9b9, type: 3}
     - {fileID: -1276816014, guid: 01624e6f7a92ff941bf01e44ad44e9b9, type: 3}
+    - {fileID: -1668544935, guid: 5fe6c806e2f4ce147bb9149d52639808, type: 3}
   m_AnimationClipSettings:
     serializedVersion: 2
     m_AdditiveReferencePoseClip: {fileID: 0}
     m_AdditiveReferencePoseTime: 0
     m_StartTime: 0
-    m_StopTime: 0.5833333
+    m_StopTime: 0.6666666
     m_OrientationOffsetY: 0
     m_Level: 0
     m_CycleOffset: 0
@@ -83,4 +86,11 @@ AnimationClip:
   m_EulerEditorCurves: []
   m_HasGenericRootTransform: 0
   m_HasMotionFloatCurves: 0
-  m_Events: []
+  m_Events:
+  - time: 0.5833333
+    functionName: ClimbExit
+    data: 
+    objectReferenceParameter: {fileID: 0}
+    floatParameter: 0
+    intParameter: 0
+    messageOptions: 0
