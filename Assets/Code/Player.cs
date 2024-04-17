@@ -1,3 +1,4 @@
+using System.Collections;
 using UnityEngine;
 
 // 정리 필요
@@ -42,6 +43,17 @@ public class Player : MonoBehaviour
     private bool isHanging;
     private bool isWall;
 
+    [Header("Hashs")]
+    private readonly int hashIsClimbing = Animator.StringToHash("IsClimbing");
+    private readonly int hashIsHanging = Animator.StringToHash("IsHanging");
+    private readonly int hashIsJumping = Animator.StringToHash("IsJumping");
+    private readonly int hashIsCrouching = Animator.StringToHash("IsCrouching");
+    private readonly int hashIsRunning = Animator.StringToHash("IsRunning");
+    private readonly int hashIsRolling = Animator.StringToHash("IsRolling");
+    private readonly int hashAttackCombo = Animator.StringToHash("AttackCombo");
+    private readonly int hashClimbJump = Animator.StringToHash("ClimbJump");
+    private readonly int hashAttackTrigger = Animator.StringToHash("AttackTrigger");
+
     private Rigidbody2D rigid;
     private Animator anim;
     private SpriteRenderer spriteRenderer;
@@ -55,7 +67,10 @@ public class Player : MonoBehaviour
 
     private void Update()
     {
-        ValueSet();
+        if (!isClimbJumping)
+        {
+            ValueSet();
+        }
 
         if (isGrounded)
         {
@@ -67,8 +82,8 @@ public class Player : MonoBehaviour
             {
                 rigid.velocity = transform.right * rollSpeed;
             }
-            anim.SetBool("IsClimbing", false);
-            anim.SetBool("IsHanging", false);
+            anim.SetBool(hashIsClimbing, false);
+            anim.SetBool(hashIsHanging, false);
     
             spriteRenderer.flipX = false;
         }
@@ -77,14 +92,14 @@ public class Player : MonoBehaviour
         {
             if(isHanging)
             {
-                anim.SetBool("IsClimbing", true);
-                anim.SetBool("IsHanging", false);
+                anim.SetBool(hashIsClimbing, true);
+                anim.SetBool(hashIsHanging, false);
                 spriteRenderer.flipX = true;
                 rigid.velocity = Vector3.down * climbSpeed;
             }
             else
             {
-                anim.SetBool("IsHanging", true);
+                anim.SetBool(hashIsHanging, true);
                 rigid.velocity = Vector2.up * hangSpeed;
                 if(Input.GetKeyDown(KeyCode.Space))
                 {
@@ -98,8 +113,8 @@ public class Player : MonoBehaviour
         }
         else
         {
-            anim.SetBool("IsClimbing", false);
-            anim.SetBool("IsHanging", false);
+            anim.SetBool(hashIsClimbing, false);
+            anim.SetBool(hashIsHanging, false);
             spriteRenderer.flipX = false;
         }
 
@@ -111,29 +126,29 @@ public class Player : MonoBehaviour
             if (isGrounded)
             {
                 if (Input.GetKeyDown(KeyCode.LeftShift)) Roll();
-                if (Input.GetKeyDown(KeyCode.Space) && !anim.GetBool("IsJumping") && !isCrouching) Jump();
+                if (Input.GetKeyDown(KeyCode.Space) && !anim.GetBool(hashIsJumping) && !isCrouching) Jump();
                 if (Input.GetAxisRaw("Vertical") < 0)
                 {
                     isCrouching = true;
-                    anim.SetBool("IsCrouching", isCrouching);
+                    anim.SetBool(hashIsCrouching, isCrouching);
                     p_collider2d.offset = new Vector2(p_collider2d.offset.x, -1.9f);
                     p_collider2d.size = new Vector2(p_collider2d.size.x, 1.2f);
                 }
                 else
                 {
                     isCrouching = false;
-                    anim.SetBool("IsCrouching", isCrouching);
+                    anim.SetBool(hashIsCrouching, isCrouching);
                     p_collider2d.offset = new Vector2(p_collider2d.offset.x, -1.25f);
                     p_collider2d.size = new Vector2(p_collider2d.size.x, 2.5f);
                 }
             }
 
-            if (anim.GetBool("IsJumping")) // fall
+            if (anim.GetBool(hashIsJumping)) // fall
             { 
                 anim.SetFloat("Velocity", rigid.velocity.y);
                 if (rigid.velocity.y < 0)
                 {
-                    anim.SetBool("IsJumping", !isGrounded);
+                    anim.SetBool(hashIsJumping, !isGrounded);
                 }
             }
         }
@@ -143,8 +158,8 @@ public class Player : MonoBehaviour
     {
         moveInput = Input.GetAxisRaw("Horizontal");
 
-        anim.SetBool("IsRunning", Mathf.Approximately(moveInput, 0) ? false : true);
-        isGrounded = Physics2D.OverlapCircle(feetPos.position, checkRadius, whatIsGround);
+        anim.SetBool(hashIsRunning, Mathf.Approximately(moveInput, 0) ? false : true);
+        isGrounded = Physics2D.OverlapBox(feetPos.position, new Vector2(1.5f, 0.1f), 0, whatIsGround);
         isWall = Physics2D.OverlapCircle(wallCheckPos.position, checkRadius, whatIsWall);
         isHanging = Physics2D.OverlapCircle(hangCheckPos.position, checkRadius, whatIsWall);
 
@@ -161,14 +176,14 @@ public class Player : MonoBehaviour
 
     private void Jump()
     {
-        anim.SetBool("IsJumping", true);
+        anim.SetBool(hashIsJumping, true);
         rigid.AddForce(Vector2.up * jumpForce, ForceMode2D.Impulse);
     }
 
     private void Roll()
     {
         isRolling = true;
-        anim.SetBool("IsRolling", true); 
+        anim.SetBool(hashIsRolling, true); 
     }
 
     private void Attack()
@@ -177,19 +192,19 @@ public class Player : MonoBehaviour
         if (isAttack == false)
         {
             isAttack = true;
-            anim.SetTrigger("AttackTrigger");
+            anim.SetTrigger(hashAttackTrigger);
         }
         else if (isAttack == true && comboAttack == true)
         {
-            anim.SetBool("AttackCombo", true);
+            anim.SetBool(hashAttackCombo, true);
         }
     }
 
     private void ClimbJump()
     {
         isClimbJumping = true;
-        anim.SetTrigger("ClimbJump");
-        anim.SetBool("IsJumping", false);
+        anim.SetTrigger(hashClimbJump);
+        anim.SetBool(hashIsJumping, false);
     }
 
     #region AnimEvent
@@ -202,7 +217,7 @@ public class Player : MonoBehaviour
     private void RollingExit() // AnimEvent
     {
         isRolling = false;
-        anim.SetBool("IsRolling", false);
+        anim.SetBool(hashIsRolling, false);
         rigid.velocity = Vector2.zero;
     }
 
@@ -215,8 +230,8 @@ public class Player : MonoBehaviour
     {
         isAttack = false;
         comboAttack = false;
-        anim.SetBool("AttackCombo", false);
-        anim.SetBool("IsRunning", false);
+        anim.SetBool(hashAttackCombo, false);
+        anim.SetBool(hashIsRunning, false);
     }
     #endregion
 }
