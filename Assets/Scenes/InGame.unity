@@ -203,7 +203,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 14110920}
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 0.25, y: 0, z: 0}
+  m_LocalPosition: {x: 0.35, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -228,6 +228,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   p_collider2d: {fileID: 14110925}
+  hp: 5
   parent: {fileID: 797978871}
   moveSpeed: 4
   feetPos: {fileID: 271961231}
@@ -248,6 +249,7 @@ MonoBehaviour:
   climbJumpExitPos: {fileID: 695302994}
   climbSpeed: 0.5
   hangSpeed: 0.1
+  nuckBackRange: 3
 --- !u!61 &14110925
 BoxCollider2D:
   m_ObjectHideFlags: 0
@@ -6257,7 +6259,7 @@ BoxCollider2D:
   m_IsTrigger: 0
   m_UsedByEffector: 0
   m_UsedByComposite: 0
-  m_Offset: {x: 0.25, y: -0.125}
+  m_Offset: {x: 0.3, y: -0.63}
   m_SpriteTilingProperty:
     border: {x: 0, y: 0, z: 0, w: 0}
     pivot: {x: 0.5, y: 0.5}
@@ -6268,7 +6270,7 @@ BoxCollider2D:
     adaptiveTiling: 0
   m_AutoTiling: 0
   serializedVersion: 2
-  m_Size: {x: 1.7, y: 3}
+  m_Size: {x: 1, y: 2}
   m_EdgeRadius: 0
 --- !u!212 &1528996037
 SpriteRenderer:
@@ -6344,7 +6346,7 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1528996035}
-  m_Enabled: 0
+  m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 9d0a37039aac9ff409b706b4f7a00508, type: 3}
   m_Name: 
@@ -6352,9 +6354,10 @@ MonoBehaviour:
   playerLayer:
     serializedVersion: 2
     m_Bits: 64
+  hp: 0
   findRange: 7
-  playerPos: {fileID: 0}
-  moveSpeed: 5
+  playerPos: {fileID: 14110923}
+  moveSpeed: 3
 --- !u!95 &1528996040
 Animator:
   serializedVersion: 5
@@ -6396,7 +6399,7 @@ Rigidbody2D:
   m_Interpolate: 0
   m_SleepingMode: 1
   m_CollisionDetection: 0
-  m_Constraints: 5
+  m_Constraints: 4
 --- !u!1 &1559380741
 GameObject:
   m_ObjectHideFlags: 0

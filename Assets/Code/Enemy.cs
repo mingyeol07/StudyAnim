@@ -5,8 +5,9 @@ using UnityEngine;
 
 public class Enemy : MonoBehaviour
 {
-    private LayerMask playerLayer;
-    private int hp;
+    [SerializeField] protected LayerMask playerLayer;
+    [SerializeField] protected int hp;
+
     private readonly int hashDie = Animator.StringToHash("Die");
     private readonly int hashHit = Animator.StringToHash("Hit");
 

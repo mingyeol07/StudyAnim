@@ -3,9 +3,8 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UIElements;
 
-public class Skeleton : MonoBehaviour
+public class Skeleton : Enemy
 {
-    [SerializeField] private LayerMask playerLayer;
     [SerializeField] private float findRange;
     [SerializeField] private Transform playerPos;
     [SerializeField] private float moveSpeed;
@@ -19,21 +18,21 @@ public class Skeleton : MonoBehaviour
 
     private void Update()
     {
-        isMove = Physics2D.OverlapCircle(transform.position, findRange, playerLayer);
-
-        if (isMove == true)
+        if (Physics2D.OverlapCircle(transform.position, findRange, playerLayer) != null && isMove)
         {
+            isMove = false;
             playerPos = Physics2D.OverlapCircle(transform.position, findRange, playerLayer).transform;
         }
-        else
+        else if(Physics2D.OverlapCircle(transform.position, findRange, playerLayer) == null && isMove == false)
         {
+            isMove = true;
             playerPos = null;
         }
 
-        if(playerPos != null)
+        if (playerPos != null)
         {
             float distance = playerPos.position.x - transform.position.x;
-            rigid.velocity = new Vector2(distance > 0 ? 1 : -1 * moveSpeed, rigid.velocity.y);
+            rigid.velocity = new Vector2((distance > 0 ? 1 : -1) * moveSpeed, rigid.velocity.y);
         }
         else
         {

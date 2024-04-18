@@ -1,4 +1,5 @@
 using System.Collections;
+using System.Threading;
 using UnityEngine;
 using UnityEngine.Lumin;
 
@@ -6,6 +7,9 @@ using UnityEngine.Lumin;
 public class Player : MonoBehaviour
 {
     [SerializeField] private BoxCollider2D p_collider2d;
+
+    [Header("Stat")]
+    [SerializeField] private int hp;
 
     [Header("Move")]
     [SerializeField] private Transform parent;
@@ -45,6 +49,7 @@ public class Player : MonoBehaviour
     private bool isWall;
 
     [Header("Hit")]
+    [SerializeField] private float nuckBackRange;
     private bool isHit;
 
     // hashs
@@ -57,7 +62,8 @@ public class Player : MonoBehaviour
     private readonly int hashAttackCombo = Animator.StringToHash("AttackCombo");
     private readonly int hashClimbJump = Animator.StringToHash("ClimbJump");
     private readonly int hashAttackTrigger = Animator.StringToHash("AttackTrigger");
-    private readonly int hashHitTrigger = Animator.StringToHash("IsHit");
+    private readonly int hashIsHit = Animator.StringToHash("IsHit");
+    private readonly int hashDieTrigger = Animator.StringToHash("Die");
 
     private Rigidbody2D rigid;
     private Animator anim;
@@ -72,6 +78,8 @@ public class Player : MonoBehaviour
 
     private void Update()
     {
+        anim.SetBool(hashIsHit, isHit);
+
         if (!isClimbJumping)
         {
             ValueSet();
@@ -79,7 +87,7 @@ public class Player : MonoBehaviour
 
         if (isGrounded)
         {
-            if (Input.GetKeyDown(KeyCode.X) && !isRolling)
+            if (Input.GetKeyDown(KeyCode.X) && !isRolling && !anim.GetBool(hashIsJumping))
             {
                 Attack();
             }
@@ -148,7 +156,7 @@ public class Player : MonoBehaviour
                 }
             }
 
-            // bug fix
+            // bug fix : 플레이어가 높은 곳에서 점프 후 착지했을 때 움직이고 있다면 fall애니메이션이 바로 끝나지 않는 버그
             if (anim.GetBool(hashIsJumping) || rigid.velocity.y < 0) // fall
             {
                 anim.SetFloat("Velocity", rigid.velocity.y);
@@ -190,6 +198,7 @@ public class Player : MonoBehaviour
     private void Roll()
     {
         isRolling = true;
+        Physics2D.IgnoreLayerCollision(6, 9, true);
         anim.SetBool(hashIsRolling, true); 
     }
 
@@ -218,16 +227,15 @@ public class Player : MonoBehaviour
     {
         if(collision.gameObject.CompareTag("Enemy"))
         {
-            
-            StartCoroutine(Hit());
+            HpDown();
         }
     }
     private IEnumerator Hit()
     {
         Physics2D.IgnoreLayerCollision(6, 9, true);
-        anim.SetTrigger(hashHitTrigger);
+        anim.SetTrigger(hashIsHit);
         spriteRenderer.color = new Color(1, 1, 1, 0.5f);
-        rigid.velocity = new Vector2(transform.rotation.y == 0 ? -jumpForce : jumpForce , rigid.velocity.y + jumpForce);
+        rigid.velocity = new Vector2(transform.rotation.y == 0 ? -nuckBackRange : nuckBackRange, rigid.velocity.y + nuckBackRange);
         isHit = true;
 
         yield return new WaitForSeconds(0.5f);
@@ -235,6 +243,20 @@ public class Player : MonoBehaviour
         Physics2D.IgnoreLayerCollision(6, 9, false);
         spriteRenderer.color = new Color(1, 1, 1, 1f);
         isHit = false;
+    }
+
+    private void HpDown()
+    {
+        hp--;
+        if(hp == 0)
+        {
+            anim.SetTrigger(hashDieTrigger);
+            this.enabled = false;
+        }
+        else
+        {
+            StartCoroutine(Hit());
+        }
     }
 
     #region AnimEvent
@@ -247,6 +269,7 @@ public class Player : MonoBehaviour
     private void RollingExit() // AnimEvent
     {
         isRolling = false;
+        Physics2D.IgnoreLayerCollision(6, 9, false);
         anim.SetBool(hashIsRolling, false);
         rigid.velocity = Vector2.zero;
     }
@@ -262,6 +285,16 @@ public class Player : MonoBehaviour
         comboAttack = false;
         anim.SetBool(hashAttackCombo, false);
         anim.SetBool(hashIsRunning, false);
+    }
+
+    private void AttackColl()
+    {
+        atkRange.SetActive(true);
+    }
+
+    private void CrouchAttackColl()
+    {
+        crouch_atkRange.SetActive(true);
     }
     #endregion
 }
