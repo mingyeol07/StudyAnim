@@ -1,5 +1,6 @@
 using System.Collections;
 using UnityEngine;
+using UnityEngine.Lumin;
 
 // 정리 필요
 public class Player : MonoBehaviour
@@ -43,7 +44,10 @@ public class Player : MonoBehaviour
     private bool isHanging;
     private bool isWall;
 
-    [Header("Hashs")]
+    [Header("Hit")]
+    private bool isHit;
+
+    // hashs
     private readonly int hashIsClimbing = Animator.StringToHash("IsClimbing");
     private readonly int hashIsHanging = Animator.StringToHash("IsHanging");
     private readonly int hashIsJumping = Animator.StringToHash("IsJumping");
@@ -53,6 +57,7 @@ public class Player : MonoBehaviour
     private readonly int hashAttackCombo = Animator.StringToHash("AttackCombo");
     private readonly int hashClimbJump = Animator.StringToHash("ClimbJump");
     private readonly int hashAttackTrigger = Animator.StringToHash("AttackTrigger");
+    private readonly int hashHitTrigger = Animator.StringToHash("IsHit");
 
     private Rigidbody2D rigid;
     private Animator anim;
@@ -119,7 +124,7 @@ public class Player : MonoBehaviour
         }
 
 
-        if (!isAttack && !isRolling && !isClimbJumping)
+        if (!isAttack && !isRolling && !isClimbJumping && !isHit)
         {
             Move();
 
@@ -143,14 +148,16 @@ public class Player : MonoBehaviour
                 }
             }
 
-            if (anim.GetBool(hashIsJumping)) // fall
-            { 
+            // bug fix
+            if (anim.GetBool(hashIsJumping) || rigid.velocity.y < 0) // fall
+            {
                 anim.SetFloat("Velocity", rigid.velocity.y);
-                if (rigid.velocity.y < 0)
+                if (anim.GetFloat("Velocity") < 0)
                 {
                     anim.SetBool(hashIsJumping, !isGrounded);
                 }
             }
+            
         }
     }
     
@@ -205,6 +212,29 @@ public class Player : MonoBehaviour
         isClimbJumping = true;
         anim.SetTrigger(hashClimbJump);
         anim.SetBool(hashIsJumping, false);
+    }
+
+    private void OnCollisionEnter2D(Collision2D collision)
+    {
+        if(collision.gameObject.CompareTag("Enemy"))
+        {
+            
+            StartCoroutine(Hit());
+        }
+    }
+    private IEnumerator Hit()
+    {
+        Physics2D.IgnoreLayerCollision(6, 9, true);
+        anim.SetTrigger(hashHitTrigger);
+        spriteRenderer.color = new Color(1, 1, 1, 0.5f);
+        rigid.velocity = new Vector2(transform.rotation.y == 0 ? -jumpForce : jumpForce , rigid.velocity.y + jumpForce);
+        isHit = true;
+
+        yield return new WaitForSeconds(0.5f);
+
+        Physics2D.IgnoreLayerCollision(6, 9, false);
+        spriteRenderer.color = new Color(1, 1, 1, 1f);
+        isHit = false;
     }
 
     #region AnimEvent
