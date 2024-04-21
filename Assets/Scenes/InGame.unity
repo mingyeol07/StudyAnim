@@ -6355,6 +6355,7 @@ MonoBehaviour:
     serializedVersion: 2
     m_Bits: 64
   hp: 0
+  animator: {fileID: 0}
   findRange: 7
   playerPos: {fileID: 14110923}
   moveSpeed: 3

@@ -78,7 +78,10 @@ public class Player : MonoBehaviour
 
     private void Update()
     {
-        anim.SetBool(hashIsHit, isHit);
+        if (!isAttack && !isRolling && !isClimbJumping && !isHit) // 이동을 제어하는 행동들
+        {
+            Move();
+        }
 
         if (!isClimbJumping)
         {
@@ -87,14 +90,29 @@ public class Player : MonoBehaviour
 
         if (isGrounded)
         {
-            if (Input.GetKeyDown(KeyCode.X) && !isRolling && !anim.GetBool(hashIsJumping))
+            if (Input.GetKeyDown(KeyCode.X) && !isRolling && !anim.GetBool(hashIsJumping)) Attack();
+
+            if (isRolling && !isAttack) rigid.velocity = transform.right * rollSpeed; // rolling
+
+            if (Input.GetKeyDown(KeyCode.LeftShift)) Roll();
+
+            if (Input.GetKeyDown(KeyCode.Space) && !anim.GetBool(hashIsJumping) && !isCrouching) Jump();
+
+            if (Input.GetAxisRaw("Vertical") < 0)
             {
-                Attack();
+                isCrouching = true;
+                anim.SetBool(hashIsCrouching, isCrouching);
+                p_collider2d.offset = new Vector2(p_collider2d.offset.x, -1.9f);
+                p_collider2d.size = new Vector2(p_collider2d.size.x, 1.2f);
             }
-            else if (isRolling && !isAttack) // rolling
+            else
             {
-                rigid.velocity = transform.right * rollSpeed;
+                isCrouching = false;
+                anim.SetBool(hashIsCrouching, isCrouching);
+                p_collider2d.offset = new Vector2(p_collider2d.offset.x, -1.25f);
+                p_collider2d.size = new Vector2(p_collider2d.size.x, 2.5f);
             }
+
             anim.SetBool(hashIsClimbing, false);
             anim.SetBool(hashIsHanging, false);
     
@@ -130,42 +148,14 @@ public class Player : MonoBehaviour
             anim.SetBool(hashIsHanging, false);
             spriteRenderer.flipX = false;
         }
-
-
-        if (!isAttack && !isRolling && !isClimbJumping && !isHit)
+        // bug fix : 플레이어가 높은 곳에서 점프 후 착지했을 때 움직이고 있다면 fall애니메이션이 바로 끝나지 않는 버그
+        if (anim.GetBool(hashIsJumping) || rigid.velocity.y < 0) // fall
         {
-            Move();
-
-            if (isGrounded)
+            anim.SetFloat("Velocity", rigid.velocity.y);
+            if (anim.GetFloat("Velocity") < 0)
             {
-                if (Input.GetKeyDown(KeyCode.LeftShift)) Roll();
-                if (Input.GetKeyDown(KeyCode.Space) && !anim.GetBool(hashIsJumping) && !isCrouching) Jump();
-                if (Input.GetAxisRaw("Vertical") < 0)
-                {
-                    isCrouching = true;
-                    anim.SetBool(hashIsCrouching, isCrouching);
-                    p_collider2d.offset = new Vector2(p_collider2d.offset.x, -1.9f);
-                    p_collider2d.size = new Vector2(p_collider2d.size.x, 1.2f);
-                }
-                else
-                {
-                    isCrouching = false;
-                    anim.SetBool(hashIsCrouching, isCrouching);
-                    p_collider2d.offset = new Vector2(p_collider2d.offset.x, -1.25f);
-                    p_collider2d.size = new Vector2(p_collider2d.size.x, 2.5f);
-                }
+                anim.SetBool(hashIsJumping, !isGrounded);
             }
-
-            // bug fix : 플레이어가 높은 곳에서 점프 후 착지했을 때 움직이고 있다면 fall애니메이션이 바로 끝나지 않는 버그
-            if (anim.GetBool(hashIsJumping) || rigid.velocity.y < 0) // fall
-            {
-                anim.SetFloat("Velocity", rigid.velocity.y);
-                if (anim.GetFloat("Velocity") < 0)
-                {
-                    anim.SetBool(hashIsJumping, !isGrounded);
-                }
-            }
-            
         }
     }
     
@@ -174,6 +164,8 @@ public class Player : MonoBehaviour
         moveInput = Input.GetAxisRaw("Horizontal");
 
         anim.SetBool(hashIsRunning, Mathf.Approximately(moveInput, 0) ? false : true);
+        anim.SetBool(hashIsHit, isHit);
+
         isGrounded = Physics2D.OverlapBox(feetPos.position, new Vector2(1.5f, 0.1f), 0, whatIsGround);
         isWall = Physics2D.OverlapCircle(wallCheckPos.position, checkRadius, whatIsWall);
         isHanging = Physics2D.OverlapCircle(hangCheckPos.position, checkRadius, whatIsWall);

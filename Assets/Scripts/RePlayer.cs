@@ -3,36 +3,7 @@ using System.Threading;
 using UnityEngine;
 using UnityEngine.Lumin;
 
-/*
-종류
-
-이동
-구르기
-공격
-점프
-벽짚기
-벽걸치기
-벽뛰넘는점프
-앉구르기
-앉공격
-
-땅에서만 가능한것
-구르기
-공격
-점프
-앉구르기
-앉공격
-
-땅이 아닐때만 가능한것
-벽걸치기 벽짚기 벽뛰점
-
-방해할 수 없는 행동
-구르기
-히트
-벽뛰점
-공격
-*/
-
+// 정리 필요
 public class RePlayer : MonoBehaviour
 {
     [SerializeField] private BoxCollider2D p_collider2d;
@@ -107,19 +78,6 @@ public class RePlayer : MonoBehaviour
 
     private void Update()
     {
-        if(isGrounded)
-        {
-            //공격, 구르기, 점프
-            if (Input.GetKeyDown(KeyCode.X) && !isRolling && !anim.GetBool(hashIsJumping))
-            {
-                Attack();
-            }
-        }
-        else
-        {
-
-        }
-
         anim.SetBool(hashIsHit, isHit);
 
         if (!isClimbJumping)
