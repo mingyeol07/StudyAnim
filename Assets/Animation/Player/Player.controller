@@ -883,7 +883,7 @@ AnimatorStateMachine:
     m_Position: {x: 20, y: 240, z: 0}
   - serializedVersion: 1
     m_State: {fileID: 6673820889975426102}
-    m_Position: {x: 30, y: 130, z: 0}
+    m_Position: {x: 20, y: 130, z: 0}
   - serializedVersion: 1
     m_State: {fileID: -1843203681439924759}
     m_Position: {x: 1100, y: 470, z: 0}
@@ -907,16 +907,16 @@ AnimatorStateMachine:
     m_Position: {x: 1100, y: 350, z: 0}
   - serializedVersion: 1
     m_State: {fileID: 7701997637316758947}
-    m_Position: {x: -160, y: 590, z: 0}
+    m_Position: {x: 320, y: 350, z: 0}
   - serializedVersion: 1
     m_State: {fileID: -662513615991604841}
     m_Position: {x: 1100, y: 230, z: 0}
   - serializedVersion: 1
     m_State: {fileID: 6961420212073712283}
-    m_Position: {x: -430, y: 370, z: 0}
+    m_Position: {x: -270, y: 340, z: 0}
   - serializedVersion: 1
     m_State: {fileID: 1038878221317266092}
-    m_Position: {x: -270, y: 510, z: 0}
+    m_Position: {x: 20, y: 350, z: 0}
   - serializedVersion: 1
     m_State: {fileID: 6787563688102033622}
     m_Position: {x: 240, y: -30, z: 0}
@@ -926,7 +926,7 @@ AnimatorStateMachine:
   m_ChildStateMachines:
   - serializedVersion: 1
     m_StateMachine: {fileID: 460575014457331072}
-    m_Position: {x: 360, y: 130, z: 0}
+    m_Position: {x: 320, y: 130, z: 0}
   - serializedVersion: 1
     m_StateMachine: {fileID: -6801835343518352528}
     m_Position: {x: -270, y: 240, z: 0}
@@ -940,8 +940,8 @@ AnimatorStateMachine:
   m_StateMachineTransitions: {}
   m_StateMachineBehaviours: []
   m_AnyStatePosition: {x: 260, y: -90, z: 0}
-  m_EntryPosition: {x: 50, y: 50, z: 0}
-  m_ExitPosition: {x: 260, y: 50, z: 0}
+  m_EntryPosition: {x: 40, y: 40, z: 0}
+  m_ExitPosition: {x: 260, y: 40, z: 0}
   m_ParentStateMachinePosition: {x: 800, y: 20, z: 0}
   m_DefaultState: {fileID: 6673820889975426102}
 --- !u!1107 &-1409562824067868427
@@ -2275,8 +2275,8 @@ AnimatorStateTransition:
   m_PrefabAsset: {fileID: 0}
   m_Name: 
   m_Conditions:
-  - m_ConditionMode: 1
-    m_ConditionEvent: IsRunning
+  - m_ConditionMode: 2
+    m_ConditionEvent: AttackCombo
     m_EventTreshold: 0
   m_DstStateMachine: {fileID: 0}
   m_DstState: {fileID: 6673820889975426102}

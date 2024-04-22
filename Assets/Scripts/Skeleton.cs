@@ -9,15 +9,10 @@ public class Skeleton : Enemy
     [SerializeField] private Transform playerPos;
     [SerializeField] private float moveSpeed;
     private bool isMove;
-    Rigidbody2D rigid;
-
-    private void Start()
-    {
-        rigid = GetComponent<Rigidbody2D>();
-    }
 
     private void Update()
     {
+        /*
         if (Physics2D.OverlapCircle(transform.position, findRange, playerLayer) != null && isMove)
         {
             isMove = false;
@@ -37,7 +32,7 @@ public class Skeleton : Enemy
         else
         {
             rigid.velocity = rigid.velocity;
-        }
+        }*/
     }
 
     private void OnDrawGizmos()

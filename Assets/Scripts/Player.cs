@@ -243,7 +243,7 @@ public class Player : MonoBehaviour
     private void HpDown()
     {
         hp--;
-        if(hp == 0)
+        if(hp <= 0)
         {
             anim.SetTrigger(hashDieTrigger);
             this.enabled = false;
@@ -284,12 +284,14 @@ public class Player : MonoBehaviour
 
     private void AttackColl()
     {
-        atkRange.SetActive(true);
+        if (atkRange.activeSelf) atkRange.SetActive(false);
+        else atkRange.SetActive(true);
     }
 
     private void CrouchAttackColl()
     {
-        crouch_atkRange.SetActive(true);
+        if (crouch_atkRange.activeSelf) crouch_atkRange.SetActive(false);
+        else crouch_atkRange.SetActive(true);
     }
     #endregion
 }
