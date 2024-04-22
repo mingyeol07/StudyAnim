@@ -922,14 +922,14 @@ AnimatorStateMachine:
     m_Position: {x: 240, y: -30, z: 0}
   - serializedVersion: 1
     m_State: {fileID: 4654648866595263593}
-    m_Position: {x: -20, y: -90, z: 0}
+    m_Position: {x: -20, y: -100, z: 0}
   m_ChildStateMachines:
   - serializedVersion: 1
     m_StateMachine: {fileID: 460575014457331072}
     m_Position: {x: 360, y: 130, z: 0}
   - serializedVersion: 1
     m_StateMachine: {fileID: -6801835343518352528}
-    m_Position: {x: -270, y: 230, z: 0}
+    m_Position: {x: -270, y: 240, z: 0}
   - serializedVersion: 1
     m_StateMachine: {fileID: -1409562824067868427}
     m_Position: {x: 320, y: 240, z: 0}

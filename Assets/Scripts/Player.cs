@@ -98,17 +98,15 @@ public class Player : MonoBehaviour
 
             if (Input.GetKeyDown(KeyCode.Space) && !anim.GetBool(hashIsJumping) && !isCrouching) Jump();
 
-            if (Input.GetAxisRaw("Vertical") < 0)
+            isCrouching = Input.GetKey(KeyCode.DownArrow);
+
+            if (isCrouching)
             {
-                isCrouching = true;
-                anim.SetBool(hashIsCrouching, isCrouching);
                 p_collider2d.offset = new Vector2(p_collider2d.offset.x, -1.9f);
                 p_collider2d.size = new Vector2(p_collider2d.size.x, 1.2f);
             }
             else
             {
-                isCrouching = false;
-                anim.SetBool(hashIsCrouching, isCrouching);
                 p_collider2d.offset = new Vector2(p_collider2d.offset.x, -1.25f);
                 p_collider2d.size = new Vector2(p_collider2d.size.x, 2.5f);
             }
@@ -121,16 +119,15 @@ public class Player : MonoBehaviour
         else if (isWall && ((transform.rotation.y == 0 && Input.GetKey(KeyCode.RightArrow))
             || (transform.rotation.y != 0 && Input.GetKey(KeyCode.LeftArrow))))
         {
-            if(isHanging)
+            if(isHanging) // hangCheckPos에 ground가 있을 때
             {
                 anim.SetBool(hashIsClimbing, true);
-                anim.SetBool(hashIsHanging, false);
+                
                 spriteRenderer.flipX = true;
                 rigid.velocity = Vector3.down * climbSpeed;
             }
-            else
+            else // 매달리기
             {
-                anim.SetBool(hashIsHanging, true);
                 rigid.velocity = Vector2.up * hangSpeed;
                 if(Input.GetKeyDown(KeyCode.Space))
                 {
@@ -138,7 +135,7 @@ public class Player : MonoBehaviour
                 }
             }
         }
-        else if(isClimbJumping)
+        else if (isClimbJumping)
         {
             rigid.velocity = Vector2.up * hangSpeed;
         }
@@ -148,15 +145,8 @@ public class Player : MonoBehaviour
             anim.SetBool(hashIsHanging, false);
             spriteRenderer.flipX = false;
         }
-        // bug fix : 플레이어가 높은 곳에서 점프 후 착지했을 때 움직이고 있다면 fall애니메이션이 바로 끝나지 않는 버그
-        if (anim.GetBool(hashIsJumping) || rigid.velocity.y < 0) // fall
-        {
-            anim.SetFloat("Velocity", rigid.velocity.y);
-            if (anim.GetFloat("Velocity") < 0)
-            {
-                anim.SetBool(hashIsJumping, !isGrounded);
-            }
-        }
+
+        
     }
     
     private void ValueSet() // 바라보는 방향, 땅에 닿았는지
@@ -165,12 +155,23 @@ public class Player : MonoBehaviour
 
         anim.SetBool(hashIsRunning, Mathf.Approximately(moveInput, 0) ? false : true);
         anim.SetBool(hashIsHit, isHit);
+        anim.SetBool(hashIsHanging, !isHanging);
+        anim.SetBool(hashIsCrouching, isCrouching);
 
         isGrounded = Physics2D.OverlapBox(feetPos.position, new Vector2(1.5f, 0.1f), 0, whatIsGround);
         isWall = Physics2D.OverlapCircle(wallCheckPos.position, checkRadius, whatIsWall);
         isHanging = Physics2D.OverlapCircle(hangCheckPos.position, checkRadius, whatIsWall);
 
         if (isAttack) rigid.velocity = Vector3.zero;
+
+        if (anim.GetBool(hashIsJumping) || rigid.velocity.y < 0) // fall
+        {
+            anim.SetFloat("Velocity", rigid.velocity.y);
+            if (anim.GetFloat("Velocity") < 0)
+            {
+                anim.SetBool(hashIsJumping, !isGrounded);
+            }
+        }
     }
 
     private void Move()
@@ -183,7 +184,9 @@ public class Player : MonoBehaviour
 
     private void Jump()
     {
+        anim.SetFloat("Velocity", 0);
         anim.SetBool(hashIsJumping, true);
+       
         rigid.AddForce(Vector2.up * jumpForce, ForceMode2D.Impulse);
     }
 
