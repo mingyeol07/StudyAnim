@@ -5,39 +5,23 @@ using UnityEngine.UIElements;
 
 public class Skeleton : Enemy
 {
-    [SerializeField] private float findRange;
-    [SerializeField] private Transform playerPos;
-    [SerializeField] private float moveSpeed;
-    private bool isMove;
+    private readonly int hashShieldt = Animator.StringToHash("IsShield");
+    private bool attack1;
+    private bool attack2;
+    
+    [SerializeField] private GameObject atkRange;
+    [SerializeField] private GameObject atk2Range;
 
     private void Update()
     {
-        /*
-        if (Physics2D.OverlapCircle(transform.position, findRange, playerLayer) != null && isMove)
-        {
-            isMove = false;
-            playerPos = Physics2D.OverlapCircle(transform.position, findRange, playerLayer).transform;
-        }
-        else if(Physics2D.OverlapCircle(transform.position, findRange, playerLayer) == null && isMove == false)
-        {
-            isMove = true;
-            playerPos = null;
-        }
+        attack1 = Physics2D.OverlapBox(atkRange.transform.position, atkRange.transform.localScale, 0, playerLayer);
+        attack2 = Physics2D.OverlapBox(atk2Range.transform.position, atk2Range.transform.localScale, 0, playerLayer);
+        AnimationControl();
+        LookAtPlayer();
 
-        if (playerPos != null)
+        if(attack1 || attack2)
         {
-            float distance = playerPos.position.x - transform.position.x;
-            rigid.velocity = new Vector2((distance > 0 ? 1 : -1) * moveSpeed, rigid.velocity.y);
+            Attack();
         }
-        else
-        {
-            rigid.velocity = rigid.velocity;
-        }*/
-    }
-
-    private void OnDrawGizmos()
-    {
-        Gizmos.color = Color.yellow;
-        Gizmos.DrawWireSphere(transform.position, findRange);
     }
 }
