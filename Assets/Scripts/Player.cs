@@ -157,6 +157,7 @@ public class Player : MonoBehaviour
         anim.SetBool(hashIsHit, isHit);
         anim.SetBool(hashIsHanging, !isHanging);
         anim.SetBool(hashIsCrouching, isCrouching);
+        anim.SetBool(hashIsRolling, isRolling);
 
         isGrounded = Physics2D.OverlapBox(feetPos.position, new Vector2(1.5f, 0.1f), 0, whatIsGround);
         isWall = Physics2D.OverlapCircle(wallCheckPos.position, checkRadius, whatIsWall);
@@ -167,7 +168,7 @@ public class Player : MonoBehaviour
         if (anim.GetBool(hashIsJumping) || rigid.velocity.y < 0) // fall
         {
             anim.SetFloat("Velocity", rigid.velocity.y);
-            if (anim.GetFloat("Velocity") < 0)
+            if (anim.GetFloat("Velocity") <= 0)
             {
                 anim.SetBool(hashIsJumping, !isGrounded);
             }
@@ -194,7 +195,6 @@ public class Player : MonoBehaviour
     {
         isRolling = true;
         Physics2D.IgnoreLayerCollision(6, 9, true);
-        anim.SetBool(hashIsRolling, true); 
     }
 
     private void Attack()
@@ -226,6 +226,7 @@ public class Player : MonoBehaviour
             {
                 anim.SetTrigger(hashDieTrigger);
                 this.enabled = false;
+                this.gameObject.layer = 0;
             }
             else
             {
@@ -262,7 +263,6 @@ public class Player : MonoBehaviour
     {
         isRolling = false;
         Physics2D.IgnoreLayerCollision(6, 9, false);
-        anim.SetBool(hashIsRolling, false);
         rigid.velocity = Vector2.zero;
     }
 

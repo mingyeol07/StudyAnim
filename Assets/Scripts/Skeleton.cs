@@ -6,12 +6,9 @@ using UnityEngine.UIElements;
 public class Skeleton : Enemy
 {
     private readonly int hashShield = Animator.StringToHash("IsShield");
-    private readonly int hashAttack = Animator.StringToHash("Attack");
     private readonly int hashAttack2 = Animator.StringToHash("Attack2");
     private bool attackRangeCheck1;
     private bool attackRangeCheck2;
-
-    [SerializeField] private bool attackAble;
 
     [SerializeField] private GameObject atkRange;
     [SerializeField] private GameObject atk2Range;
@@ -20,7 +17,8 @@ public class Skeleton : Enemy
     {
         attackRangeCheck1 = Physics2D.OverlapBox(atkRange.transform.position, atkRange.transform.localScale, 0, playerLayer);
 
-        AnimationControl();
+        anim.SetBool(hashWalk, playerCheck);
+
         LookAtPlayer();
 
         if (attackRangeCheck1)
@@ -53,27 +51,9 @@ public class Skeleton : Enemy
         }
     }
 
-    protected private void Attack()
+    public override void AttackExit()
     {
-        if (!isAttack && !attackAble)
-        {
-            isAttack = true;
-            attackAble = true;
-            rigid.velocity = Vector2.zero;
-            anim.SetBool(hashAttack, true);
-            Invoke("AttackAble", 3f);
-        }
-    }
-
-    private void AttackAble()
-    {
-        attackAble = false;
-    }
-
-    private void AttackExit()
-    {
-        isAttack = false;
-        anim.SetBool(hashAttack, false);
+        base.AttackExit();
         atkRange.SetActive(false);
         atk2Range.SetActive(false);
     }

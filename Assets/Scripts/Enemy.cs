@@ -8,13 +8,14 @@ public class Enemy : MonoBehaviour
     [SerializeField] protected LayerMask playerLayer;
     [SerializeField] private int hp;
    
-    [SerializeField] private float findRange;
     [SerializeField] private float moveSpeed;
     [SerializeField] private Transform playerPos;
+    [SerializeField] private float attackCool;
     
-    private bool playerCheck;
-    private bool isHit;
+    protected bool playerCheck;
+    protected bool isHit;
     protected bool isAttack;
+    protected bool attackAble;
 
     protected Animator anim;
     protected SpriteRenderer spriteRenderer;
@@ -22,8 +23,8 @@ public class Enemy : MonoBehaviour
 
     private readonly int hashDie = Animator.StringToHash("Die");
     private readonly int hashHit = Animator.StringToHash("Hit");
-    
-    private readonly int hashWalk = Animator.StringToHash("IsWalk");
+    protected readonly int hashWalk = Animator.StringToHash("IsWalk");
+    private readonly int hashAttack = Animator.StringToHash("Attack");
 
     private void Start()
     {
@@ -32,23 +33,21 @@ public class Enemy : MonoBehaviour
         rigid = GetComponent<Rigidbody2D>();
     }
 
-    protected void AnimationControl()
-    {
-        anim.SetBool(hashWalk, playerCheck);
-    }
-
     protected void LookAtPlayer()
     {
-        if (Physics2D.OverlapCircle(transform.position, findRange, playerLayer) == null && playerCheck == true)
+        Debug.DrawRay(rigid.position, transform.right * 7f, Color.red, 0, false);
+        RaycastHit2D hit = Physics2D.Raycast(transform.position, transform.right, 7f, playerLayer);
+
+        if (hit.collider == null && playerCheck == true)
         {
             playerCheck = false;
             playerPos = null;
             rigid.velocity = Vector2.zero;
         }
-        else if (Physics2D.OverlapCircle(transform.position, findRange, playerLayer) != null && playerCheck == false)
+        else if (hit.collider != null && playerCheck == false)
         {
             playerCheck = true;
-            playerPos = Physics2D.OverlapCircle(transform.position, findRange, playerLayer).transform;
+            playerPos = hit.transform;
         }
 
         if (playerCheck && !isHit && !isAttack)
@@ -59,15 +58,9 @@ public class Enemy : MonoBehaviour
         }
     }
 
-    private void OnDrawGizmos()
-    {
-        Gizmos.color = Color.yellow;
-        Gizmos.DrawWireSphere(transform.position, findRange);
-    }
-
     private void OnTriggerEnter2D(Collider2D collision)
     {
-        if (collision.gameObject.CompareTag("PlayerAttack"))
+        if (collision.gameObject.CompareTag("PlayerAttack") && !isAttack)
         {
             HpDown();
         }
@@ -94,11 +87,34 @@ public class Enemy : MonoBehaviour
             anim.SetTrigger(hashDie);
             rigid.velocity = Vector2.zero;
             this.gameObject.layer = 10;
-            this.enabled = false;
+            Destroy(this.GetComponent<Enemy>());
         }
         else
         {
             StartCoroutine(Hit());
         }
+    }
+
+    protected private void Attack()
+    {
+        if (!isAttack && !attackAble)
+        {
+            isAttack = true;
+            attackAble = true;
+            anim.SetBool(hashAttack, true);
+            rigid.velocity = Vector2.zero;
+            Invoke("AttackAble", attackCool);
+        }
+    }
+
+    protected void AttackAble()
+    {
+        attackAble = false;
+    }
+
+    public virtual void AttackExit()
+    {
+        isAttack = false;
+        anim.SetBool(hashAttack, false);
     }
 }
