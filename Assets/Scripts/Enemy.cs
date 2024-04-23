@@ -14,15 +14,15 @@ public class Enemy : MonoBehaviour
     
     private bool playerCheck;
     private bool isHit;
-    private bool isAttack;
+    protected bool isAttack;
 
-    private Animator anim;
-    private SpriteRenderer spriteRenderer;
-    private Rigidbody2D rigid;
+    protected Animator anim;
+    protected SpriteRenderer spriteRenderer;
+    protected Rigidbody2D rigid;
 
     private readonly int hashDie = Animator.StringToHash("Die");
     private readonly int hashHit = Animator.StringToHash("Hit");
-    private readonly int hashAttack = Animator.StringToHash("Attack");
+    
     private readonly int hashWalk = Animator.StringToHash("IsWalk");
 
     private void Start()
@@ -34,7 +34,7 @@ public class Enemy : MonoBehaviour
 
     protected void AnimationControl()
     {
-        anim.SetBool(hashWalk, rigid.velocity.x != 0);
+        anim.SetBool(hashWalk, playerCheck);
     }
 
     protected void LookAtPlayer()
@@ -54,7 +54,7 @@ public class Enemy : MonoBehaviour
         if (playerCheck && !isHit && !isAttack)
         {
             float distance = playerPos.position.x - transform.position.x;
-            rigid.velocity = new Vector2(Mathf.Sign(distance) * moveSpeed, rigid.velocity.y);
+            if(Mathf.Abs(distance) > 3) rigid.velocity = new Vector2(Mathf.Sign(distance) * moveSpeed, rigid.velocity.y);
             transform.rotation = Quaternion.Euler(0, distance > 0 ? 0 : 180, 0);
         }
     }
@@ -63,21 +63,6 @@ public class Enemy : MonoBehaviour
     {
         Gizmos.color = Color.yellow;
         Gizmos.DrawWireSphere(transform.position, findRange);
-    }
-
-    protected private void Attack()
-    {
-        if(!isAttack)
-        {
-            isAttack = true;
-            rigid.velocity = Vector2.zero;
-            anim.SetTrigger(hashAttack);
-        }
-    }
-    
-    private void AttackExit()
-    {
-        if(isAttack) { isAttack = false;}
     }
 
     private void OnTriggerEnter2D(Collider2D collision)

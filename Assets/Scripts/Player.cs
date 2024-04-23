@@ -217,19 +217,31 @@ public class Player : MonoBehaviour
         anim.SetBool(hashIsJumping, false);
     }
 
-    private void OnCollisionEnter2D(Collision2D collision)
+    private void OnTriggerEnter2D(Collider2D collision)
     {
-        if(collision.gameObject.CompareTag("Enemy"))
+        if (collision.gameObject.CompareTag("EnemyAttack"))
         {
-            HpDown();
+            hp--;
+            if (hp <= 0)
+            {
+                anim.SetTrigger(hashDieTrigger);
+                this.enabled = false;
+            }
+            else
+            {
+                StartCoroutine(Hit(collision.transform));
+            }
         }
     }
-    private IEnumerator Hit()
+
+    private IEnumerator Hit(Transform enemyPos)
     {
         Physics2D.IgnoreLayerCollision(6, 9, true);
         anim.SetTrigger(hashIsHit);
         spriteRenderer.color = new Color(1, 1, 1, 0.5f);
-        rigid.velocity = new Vector2(transform.rotation.y == 0 ? -nuckBackRange : nuckBackRange, rigid.velocity.y + nuckBackRange);
+        if (enemyPos.position.x > transform.position.x) { parent.eulerAngles = Vector3.zero; }
+        else if (enemyPos.position.x < transform.position.x) parent.eulerAngles = new Vector3(0, 180, 0);
+        rigid.velocity = new Vector2(parent.rotation.y == 0 ? -nuckBackRange : nuckBackRange, rigid.velocity.y + nuckBackRange);
         isHit = true;
 
         yield return new WaitForSeconds(0.5f);
@@ -237,20 +249,6 @@ public class Player : MonoBehaviour
         Physics2D.IgnoreLayerCollision(6, 9, false);
         spriteRenderer.color = new Color(1, 1, 1, 1f);
         isHit = false;
-    }
-
-    private void HpDown()
-    {
-        hp--;
-        if(hp <= 0)
-        {
-            anim.SetTrigger(hashDieTrigger);
-            this.enabled = false;
-        }
-        else
-        {
-            StartCoroutine(Hit());
-        }
     }
 
     #region AnimEvent
