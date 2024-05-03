@@ -53,7 +53,8 @@ public class Enemy : MonoBehaviour
         if (playerCheck && !isHit && !isAttack)
         {
             float distance = playerPos.position.x - transform.position.x;
-            if(Mathf.Abs(distance) > 3) rigid.velocity = new Vector2(Mathf.Sign(distance) * moveSpeed, rigid.velocity.y);
+            if(Mathf.Abs(distance) > 5) rigid.velocity = new Vector2(Mathf.Sign(distance) * moveSpeed, rigid.velocity.y);
+            else if (Mathf.Abs(distance) < 4) rigid.velocity = new Vector2(Mathf.Sign(distance) * -moveSpeed, rigid.velocity.y);
             transform.rotation = Quaternion.Euler(0, distance > 0 ? 0 : 180, 0);
         }
     }

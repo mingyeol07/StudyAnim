@@ -168,10 +168,7 @@ public class Player : MonoBehaviour
         if (anim.GetBool(hashIsJumping) || rigid.velocity.y < 0) // fall
         {
             anim.SetFloat("Velocity", rigid.velocity.y);
-            if (anim.GetFloat("Velocity") <= 0)
-            {
-                anim.SetBool(hashIsJumping, !isGrounded);
-            }
+            anim.SetBool(hashIsJumping, !isGrounded);
         }
     }
 
