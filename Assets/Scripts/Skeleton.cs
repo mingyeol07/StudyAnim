@@ -17,8 +17,6 @@ public class Skeleton : Enemy
     {
         attackRangeCheck1 = Physics2D.OverlapBox(atkRange.transform.position, atkRange.transform.localScale, 0, playerLayer);
 
-        anim.SetBool(hashWalk, playerCheck);
-
         LookAtPlayer();
 
         if (attackRangeCheck1)
