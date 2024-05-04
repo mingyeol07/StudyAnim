@@ -191,7 +191,6 @@ public class Player : MonoBehaviour
     private void Roll()
     {
         isRolling = true;
-        Physics2D.IgnoreLayerCollision(6, 9, true);
     }
 
     private void Attack()
@@ -216,14 +215,14 @@ public class Player : MonoBehaviour
 
     private void OnTriggerEnter2D(Collider2D collision)
     {
-        if (collision.gameObject.CompareTag("EnemyAttack"))
+        if (collision.gameObject.CompareTag("EnemyAttack") && !isRolling)
         {
             hp--;
             if (hp <= 0)
             {
                 anim.SetTrigger(hashDieTrigger);
-                this.enabled = false;
-                this.gameObject.layer = 0;
+                rigid.velocity = Vector2.zero;
+                Destroy(this);
             }
             else
             {
