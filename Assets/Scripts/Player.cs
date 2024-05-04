@@ -145,8 +145,6 @@ public class Player : MonoBehaviour
             anim.SetBool(hashIsHanging, false);
             spriteRenderer.flipX = false;
         }
-
-        
     }
     
     private void ValueSet() // 바라보는 방향, 땅에 닿았는지

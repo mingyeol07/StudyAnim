@@ -76,6 +76,7 @@ public class Monster : MonoBehaviour
             if(!attackStart)
             {
                 attackStart = true;
+                playerPos = GameObject.FindGameObjectWithTag("Player").transform;
             }
             StartCoroutine(Hit());
         }

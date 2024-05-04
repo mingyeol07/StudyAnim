@@ -7,6 +7,8 @@ public class Skeleton : WalkMonster
 {
     private void Update()
     {
+        anim.SetInteger(hashMove, attackStart ? 1 : (int)rigid.velocity.x);
+
         LookAtPlayer();
 
         if (attackStart)

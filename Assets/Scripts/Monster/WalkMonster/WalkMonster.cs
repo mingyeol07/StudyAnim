@@ -27,9 +27,6 @@ public class WalkMonster : Monster
     /// </summary>
     protected void LookAtPlayer()
     {
-        // 걷는 애니메이션
-        anim.SetInteger(hashMove, attackStart ? 1 : (int)rigid.velocity.x);
-
         if (!attackStart && playerHit)
         {
             // 레이가 플레이어를 감지하면 랜덤무브 코루틴을 끝내고 공격모드 돌입
@@ -48,7 +45,7 @@ public class WalkMonster : Monster
         {
             MoveToPlayer();
         }
-        else // 랜덤이동
+        else if(!attackStart) // 랜덤이동
         {
             // 앞에 벽이 있으면 멈춤
             isWall = Physics2D.OverlapCircle(wallCheckPos.position, WallCheckRadius, wallLayer);
