@@ -2,11 +2,20 @@ using System.Collections;
 using System.Threading;
 using UnityEngine;
 using UnityEngine.Lumin;
-
+// 300줄 코드 수술 드가자^^lqkf
 // 정리 필요
 public class Player : MonoBehaviour
 {
-    [SerializeField] private BoxCollider2D p_collider2d;
+    // Collider 
+    [SerializeField] private BoxCollider2D playerCollider;
+    private Vector2 standColliderOffset = new Vector2(-0.35f, -1.25f);
+    private Vector2 standColliderSize = new Vector2(1.5f, 2.5f);
+    private Vector2 crouchColliderOffset = new Vector2(-0.35f, -1.9f);
+    private Vector2 crouchColliderSize =  new Vector2(1.5f, 1.2f);
+
+    // Layer
+    [SerializeField] private LayerMask whatIsGround;
+    [SerializeField] private LayerMask whatIsWall;
 
     [Header("Stat")]
     [SerializeField] private int hp;
@@ -18,39 +27,45 @@ public class Player : MonoBehaviour
 
     [Header("Jump")]
     [SerializeField] private Transform feetPos;
-    [SerializeField] private LayerMask whatIsGround;
     [SerializeField] private float jumpForce;
-    private bool isGrounded;
-    private float checkRadius = 0.1f;
+    private const float checkRadius = 0.1f;
 
     [Header("Attack")]
-    [SerializeField] private bool isAttack;
     [SerializeField] private GameObject atkRange;
     private bool comboAttack;
 
     [Header("Roll")]
     [SerializeField] float rollSpeed;
-    private bool isRolling;
 
     [Header("Crouch")]
     [SerializeField] private float crouchSpeed;
     [SerializeField] private GameObject crouch_atkRange;
-    private bool isCrouching;
-
+    
     [Header("Wall")]
-    [SerializeField] private LayerMask whatIsWall;
     [SerializeField] private Transform wallCheckPos;
-    [SerializeField] private Transform hangCheckPos;
-    [SerializeField] private Transform climbJumpExitPos;
-    [SerializeField] private float climbSpeed;
-    [SerializeField] private float hangSpeed;
-    private bool isClimbJumping;
-    private bool isHanging;
-    private bool isWall;
 
+    // climb = 벽대고 스르륵
+    [Header("Climb")]
+    [SerializeField] private Transform climbJumpExitPos;
+    private const float climbSpeed = 0.5f;
+
+    [Header("Hang")]
+    [SerializeField] private Transform hangCheckPos;
+    private const float hangSpeed = 0.1f;
+    
     [Header("Hit")]
     [SerializeField] private float nuckBackRange;
+
+    private bool actionAble;
+
+    private bool isAttack;
     private bool isHit;
+    private bool isWall;
+    private bool isCrouching;
+    private bool isRolling;
+    private bool isHanging;
+    private bool isClimbJumping;
+    private bool isGrounded;
 
     // hashs
     private readonly int hashIsClimbing = Animator.StringToHash("IsClimbing");
@@ -78,66 +93,50 @@ public class Player : MonoBehaviour
 
     private void Update()
     {
-        if (!isAttack && !isRolling && !isClimbJumping && !isHit) // 이동을 제어하는 행동들
-        {
-            Move();
-        }
+        actionAble = !isAttack && !isRolling && !isHit && !isClimbJumping;
+        if (actionAble) Move();
 
-        if (!isClimbJumping)
-        {
-            ValueSet();
-        }
+        if (!isClimbJumping) ValueSet();
+        else rigid.velocity = Vector2.up * hangSpeed;
 
+        GroundHandle();
+        WallHandle();
+    }
+
+    #region Handle
+    private void GroundHandle()
+    {
         if (isGrounded)
         {
-            if (Input.GetKeyDown(KeyCode.X) && !isRolling && !anim.GetBool(hashIsJumping)) Attack();
+            if (!isRolling && !anim.GetBool(hashIsJumping) && !isHit && !isClimbJumping)
+            {
+                if (Input.GetKeyDown(KeyCode.X)) Attack();
 
+                if (!isAttack)
+                {
+                    if (Input.GetKeyDown(KeyCode.LeftShift)) Roll();
+
+                    if (Input.GetKeyDown(KeyCode.Space)) Jump();
+
+                    Crouch();
+                }
+            }
             if (isRolling && !isAttack) rigid.velocity = transform.right * rollSpeed; // rolling
-
-            if (Input.GetKeyDown(KeyCode.LeftShift)) Roll();
-
-            if (Input.GetKeyDown(KeyCode.Space) && !anim.GetBool(hashIsJumping) && !isCrouching) Jump();
-
-            isCrouching = Input.GetKey(KeyCode.DownArrow);
-
-            if (isCrouching)
-            {
-                p_collider2d.offset = new Vector2(p_collider2d.offset.x, -1.9f);
-                p_collider2d.size = new Vector2(p_collider2d.size.x, 1.2f);
-            }
-            else
-            {
-                p_collider2d.offset = new Vector2(p_collider2d.offset.x, -1.25f);
-                p_collider2d.size = new Vector2(p_collider2d.size.x, 2.5f);
-            }
-
-            anim.SetBool(hashIsClimbing, false);
-            anim.SetBool(hashIsHanging, false);
-    
-            spriteRenderer.flipX = false;
         }
-        else if (isWall && ((transform.rotation.y == 0 && Input.GetKey(KeyCode.RightArrow))
-            || (transform.rotation.y != 0 && Input.GetKey(KeyCode.LeftArrow))))
+    }
+
+    private void WallHandle()
+    {
+        if (isWall && (transform.rotation.y == 0 ? Input.GetKey(KeyCode.RightArrow) : Input.GetKey(KeyCode.LeftArrow)))
         {
-            if(isHanging) // hangCheckPos에 ground가 있을 때
+            if (isHanging) // hangCheckPos에 ground가 있을 때
             {
-                anim.SetBool(hashIsClimbing, true);
-                
-                spriteRenderer.flipX = true;
-                rigid.velocity = Vector3.down * climbSpeed;
+                Hanging();
             }
             else // 매달리기
             {
-                rigid.velocity = Vector2.up * hangSpeed;
-                if(Input.GetKeyDown(KeyCode.Space))
-                {
-                    ClimbJump();
-                }
+                ClimbDown();
             }
-        }
-        else if (isClimbJumping)
-        {
-            rigid.velocity = Vector2.up * hangSpeed;
         }
         else
         {
@@ -146,36 +145,56 @@ public class Player : MonoBehaviour
             spriteRenderer.flipX = false;
         }
     }
-    
-    private void ValueSet() // 바라보는 방향, 땅에 닿았는지
-    {
-        moveInput = Input.GetAxisRaw("Horizontal");
+    #endregion
 
+    private void ValueSet()
+    {
+        AnimatorSetting();
+        LayerCheck();
+        Fall();
+    }
+
+    private void AnimatorSetting()
+    {
         anim.SetBool(hashIsRunning, Mathf.Approximately(moveInput, 0) ? false : true);
         anim.SetBool(hashIsHit, isHit);
         anim.SetBool(hashIsHanging, !isHanging);
         anim.SetBool(hashIsCrouching, isCrouching);
         anim.SetBool(hashIsRolling, isRolling);
+        anim.ResetTrigger(hashClimbJump);
+    }
 
+    private void LayerCheck()
+    {
         isGrounded = Physics2D.OverlapBox(feetPos.position, new Vector2(1.5f, 0.1f), 0, whatIsGround);
         isWall = Physics2D.OverlapCircle(wallCheckPos.position, checkRadius, whatIsWall);
         isHanging = Physics2D.OverlapCircle(hangCheckPos.position, checkRadius, whatIsWall);
-
-        if (isAttack) rigid.velocity = Vector3.zero;
-
-        if (anim.GetBool(hashIsJumping) || rigid.velocity.y < 0) // fall
-        {
-            anim.SetFloat("Velocity", rigid.velocity.y);
-            anim.SetBool(hashIsJumping, !isGrounded);
-        }
     }
 
     private void Move()
     {
+        moveInput = Input.GetAxis("Horizontal");
+
         rigid.velocity = new Vector2((isCrouching? crouchSpeed : moveSpeed) * moveInput, rigid.velocity.y);
         
         if (moveInput > 0) { parent.eulerAngles = Vector3.zero; }
         else if (moveInput < 0) parent.eulerAngles = new Vector3(0, 180, 0);
+    }
+
+    private void Crouch()
+    {
+        if (Input.GetKey(KeyCode.DownArrow))
+        {
+            isCrouching = true;
+            playerCollider.offset = crouchColliderOffset;
+            playerCollider.size = crouchColliderSize;
+        }
+        else
+        {
+            isCrouching = false;
+            playerCollider.offset = standColliderOffset;
+            playerCollider.size = standColliderSize;
+        }
     }
 
     private void Jump()
@@ -184,6 +203,15 @@ public class Player : MonoBehaviour
         anim.SetBool(hashIsJumping, true);
        
         rigid.AddForce(Vector2.up * jumpForce, ForceMode2D.Impulse);
+    }
+
+    private void Fall()
+    {
+        if (anim.GetBool(hashIsJumping) || rigid.velocity.y < 0) // fall
+        {
+            anim.SetFloat("Velocity", rigid.velocity.y);
+            anim.SetBool(hashIsJumping, !isGrounded);
+        }
     }
 
     private void Roll()
@@ -196,11 +224,28 @@ public class Player : MonoBehaviour
         if (isAttack == false)
         {
             isAttack = true;
+            rigid.velocity = Vector2.zero;
             anim.SetTrigger(hashAttackTrigger);
         }
         else if (isAttack == true && comboAttack == true)
         {
             anim.SetBool(hashAttackCombo, true);
+        }
+    }
+
+    private void Hanging()
+    {
+        anim.SetBool(hashIsClimbing, true);
+        spriteRenderer.flipX = true;
+        rigid.velocity = Vector3.down * climbSpeed;
+    }
+
+    private void ClimbDown()
+    {
+        rigid.velocity = Vector2.up * hangSpeed;
+        if (Input.GetKeyDown(KeyCode.Space))
+        {
+            ClimbJump();
         }
     }
 
@@ -213,7 +258,7 @@ public class Player : MonoBehaviour
 
     private void OnTriggerEnter2D(Collider2D collision)
     {
-        if (collision.gameObject.CompareTag("EnemyAttack") && !isRolling)
+        if (collision.gameObject.CompareTag("EnemyAttack") && !isRolling && !isHit)
         {
             hp--;
             if (hp <= 0)
@@ -231,19 +276,19 @@ public class Player : MonoBehaviour
 
     private IEnumerator Hit(Transform enemyPos)
     {
-        Physics2D.IgnoreLayerCollision(6, 9, true);
-        anim.SetTrigger(hashIsHit);
+        isHit = true;
         spriteRenderer.color = new Color(1, 1, 1, 0.5f);
+        anim.SetTrigger(hashIsHit);
+
         if (enemyPos.position.x > transform.position.x) { parent.eulerAngles = Vector3.zero; }
         else if (enemyPos.position.x < transform.position.x) parent.eulerAngles = new Vector3(0, 180, 0);
+
         rigid.velocity = new Vector2(parent.rotation.y == 0 ? -nuckBackRange : nuckBackRange, rigid.velocity.y + nuckBackRange);
-        isHit = true;
 
         yield return new WaitForSeconds(0.5f);
 
-        Physics2D.IgnoreLayerCollision(6, 9, false);
-        spriteRenderer.color = new Color(1, 1, 1, 1f);
         isHit = false;
+        spriteRenderer.color = new Color(1, 1, 1, 1f);
     }
 
     #region AnimEvent

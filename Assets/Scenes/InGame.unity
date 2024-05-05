@@ -247,8 +247,6 @@ MonoBehaviour:
   wallCheckPos: {fileID: 1094473610}
   hangCheckPos: {fileID: 1837541868}
   climbJumpExitPos: {fileID: 695302994}
-  climbSpeed: 0.5
-  hangSpeed: 0.1
   nuckBackRange: 0
 --- !u!61 &14110925
 BoxCollider2D:
@@ -345,7 +343,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!95 &427913597
 Animator:
   serializedVersion: 5
@@ -6239,7 +6237,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!95 &1266561087
 Animator:
   serializedVersion: 5
