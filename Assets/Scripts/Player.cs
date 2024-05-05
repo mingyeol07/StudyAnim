@@ -127,7 +127,7 @@ public class Player : MonoBehaviour
 
     private void WallHandle()
     {
-        if (isWall && (transform.rotation.y == 0 ? Input.GetKey(KeyCode.RightArrow) : Input.GetKey(KeyCode.LeftArrow)))
+        if (!isGrounded && isWall && (transform.rotation.y == 0 ? Input.GetKey(KeyCode.RightArrow) : Input.GetKey(KeyCode.LeftArrow)))
         {
             if (isHanging) // hangCheckPos에 ground가 있을 때
             {
@@ -176,9 +176,15 @@ public class Player : MonoBehaviour
         moveInput = Input.GetAxis("Horizontal");
 
         rigid.velocity = new Vector2((isCrouching? crouchSpeed : moveSpeed) * moveInput, rigid.velocity.y);
-        
-        if (moveInput > 0) { parent.eulerAngles = Vector3.zero; }
-        else if (moveInput < 0) parent.eulerAngles = new Vector3(0, 180, 0);
+
+        if (moveInput > 0)
+        {
+            parent.eulerAngles = Vector3.zero;
+        }
+        else if (moveInput < 0)
+        {
+            parent.eulerAngles = new Vector3(0, 180, 0);
+        }
     }
 
     private void Crouch()
