@@ -7,8 +7,9 @@ using UnityEngine;
 public class Monster : MonoBehaviour
 {
     [Header("Layer")]
-    [SerializeField] protected LayerMask playerLayer = 6;
-    [SerializeField] protected  LayerMask wallLayer = 8;
+    [SerializeField] protected LayerMask playerLayer;
+    [SerializeField] protected  LayerMask wallLayer;
+    [SerializeField] protected Transform parent;
 
     protected bool playerChecking = true;
     protected bool attackStart = false;
@@ -30,7 +31,7 @@ public class Monster : MonoBehaviour
 
     [Header("Attack")]
     [SerializeField] protected float attackCoolTime;
-    [SerializeField] private GameObject atkRange;
+    [SerializeField] protected GameObject atkRange;
     protected float attackReadyTime;
     protected bool isAttack;
 
@@ -89,7 +90,7 @@ public class Monster : MonoBehaviour
         rigid.velocity = Vector2.zero;
         spriteRenderer.color = new Color(1, 1, 1, 0.5f);
 
-        yield return new WaitForSeconds(0.5f);
+        yield return new WaitForSeconds(0.1f);
 
         spriteRenderer.color = new Color(1, 1, 1, 1f);
         isHit = false;

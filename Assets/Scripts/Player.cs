@@ -173,7 +173,7 @@ public class Player : MonoBehaviour
 
     private void Move()
     {
-        moveInput = Input.GetAxis("Horizontal");
+        moveInput = Input.GetAxisRaw("Horizontal");
 
         rigid.velocity = new Vector2((isCrouching? crouchSpeed : moveSpeed) * moveInput, rigid.velocity.y);
 
@@ -283,6 +283,7 @@ public class Player : MonoBehaviour
     private IEnumerator Hit(Transform enemyPos)
     {
         isHit = true;
+        isAttack = false;
         spriteRenderer.color = new Color(1, 1, 1, 0.5f);
         anim.SetTrigger(hashIsHit);
 

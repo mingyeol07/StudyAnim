@@ -56,7 +56,7 @@ public class WalkMonster : Monster
     protected virtual void MoveToPlayer()
     {
         // 플레이어와 거리 계산
-        playerDistance = playerPos.position.x - transform.position.x;
+        playerDistance = playerPos.position.x - parent.position.x;
 
         // 플레이어와의 거리가 max보다 크다면 플레이어쪽으로 이동, min보다 작으면 플레이어 반대쪽으로 이동하여 적정거리 유지
         // 플레이어가 나보다 왼쪽에 있다면 playerDistance는 의 부호는 -이고 오른쪽에 있다면 +이다.
@@ -64,8 +64,8 @@ public class WalkMonster : Monster
         else if (Mathf.Abs(playerDistance) < minPlayerDistance) rigid.velocity = new Vector2(Mathf.Sign(playerDistance) * -minMoveSpeed, rigid.velocity.y);
 
         // 플레이어의 위치에 따라 플레이어를 바라보게 턴
-        if (playerDistance < 0) transform.eulerAngles = turnLeftVec;
-        else if (playerDistance > 0) transform.eulerAngles = turnRightVec;
+        if (playerDistance < 0) parent.eulerAngles = turnLeftVec;
+        else if (playerDistance > 0) parent.eulerAngles = turnRightVec;
     }
 
     /// <summary>
@@ -75,8 +75,8 @@ public class WalkMonster : Monster
     {
         int randomDir = Random.Range(-1, 2);
 
-        if (randomDir < 0) transform.eulerAngles = turnLeftVec;
-        else if (randomDir > 0) transform.eulerAngles = turnRightVec;
+        if (randomDir < 0) parent.eulerAngles = turnLeftVec;
+        else if (randomDir > 0) parent.eulerAngles = turnRightVec;
 
         moveDir = randomDir * maxMoveSpeed;
 
